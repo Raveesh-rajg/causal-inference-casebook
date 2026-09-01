@@ -1,4 +1,4 @@
-# Causal Inference Casebook — when you can't run the experiment
+# Causal Impact Measurement | When an experiment is not possible
 
 Three quasi-experimental methods, each built as a complete case with a
 planted true effect: the naive estimate is computed first and shown wrong,
