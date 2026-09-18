@@ -1,52 +1,48 @@
-# Causal Impact Measurement | When an experiment is not possible
+# Causal Impact Measurement
 
-Three quasi-experimental methods, each built as a complete case with a
-planted true effect: the naive estimate is computed first and shown wrong,
-the method recovers the truth, and the method's key ASSUMPTION is made
-visible and tested. 9 pytest tests pin every claim.
+Compare naive estimates with difference-in-differences, synthetic control and propensity stratification on data with known planted effects.
 
-This is the senior-analyst skill big-tech loops probe hardest: experiments
-are the gold standard (see the sibling ab-testing-framework project), but
-half of real decisions can't be randomized — and knowing what replaces
-randomization, and what it costs, is the difference between an analyst and
-a dashboard operator.
+## Implementation and validation
 
-## The three cases (all numbers measured, seeded)
+Three executable method implementations and their regression tests. No cloud account required.
 
-**1. Difference-in-Differences** — loyalty program rolled to the *biggest*
-stores (selection on levels, no experiment possible):
-```
-naive post-period gap : +44.2   (truth: +8.0 — off by the entire selection gap)
-DiD (2x2 and OLS)     : +7.97  ± 0.35 clustered SE
-event study           : pre-launch gaps flat (parallel trends, visualized)
-placebo-in-time       : -0.8 (fake launch date finds nothing — as it must)
+Automated checks: **9 tests**. The GitHub Actions run linked above the file browser is the current CI result. Local checks and external integrations are separate claims.
+
+## Reproduce locally
+
+Use Python 3.12. Run from this repository’s root in a fresh virtual environment.
+
+```sh
+python -m venv .venv
+# Activate .venv for your shell, then:
+python -m pip install -r requirements.txt
 ```
 
-**2. Synthetic Control** — ONE treated state (nothing to average over):
-```
-pre-period fit        : RMSE 1.9 on outcome levels ~80-110
-estimated ATT         : -9.1   (truth: -12.0)
-placebo-in-space      : treated post/pre RMSE ratio 5.0, permutation p = 0.095
-                        (the honest limit of 21-unit inference — stated, not hidden)
-```
-Implementation note kept in the code: solving NNLS then renormalizing
-weights destroys the fit; the sum-to-one constraint must live inside the
-solver. Found by a failing test.
+For repositories using `src/`, set the import path before running commands:
 
-**3. Propensity Stratification** — feature adoption confounded by usage:
+```powershell
+# PowerShell
+$env:PYTHONPATH="src"
 ```
-naive adopter gap     : +$40.5  (truth: +$15 — 2.7x overstated)
-stratified ATT        : +$15.9
-balance check         : pre-activity SMD 1.00 -> 0.49 max within strata
-boundary condition    : matching handles OBSERVED confounding only; the
-                        generator guarantees no unobserved confounder,
-                        real data never does — the caveat every readout carries
+```sh
+# macOS/Linux
+export PYTHONPATH=src
 ```
 
-## Run
-```bash
-pip install pandas numpy scipy scikit-learn statsmodels pytest
-PYTHONPATH=src pytest tests/ -q     # 9 tests
+```sh
+python -m pytest tests -q
 ```
-`src/causal/{did,synth,matching}.py` — each file is one self-contained case
-with its scenario, estimator, diagnostics, and honesty notes in docstrings.
+
+## Data and interpretation
+
+Synthetic cases with known effects. Real-world causal interpretation depends on parallel trends, donor fit or observed-confounding assumptions; these demonstrations do not prove those assumptions in new data.
+
+## Inspect the work
+
+- [`tests/`](tests/) — executable checks and examples.
+- [`docs/`](docs/) — methodology, integration specifications and the historical design.
+- [Portfolio](https://raveesh-rajg.github.io/) — project directory.
+
+## Completion boundary
+
+Passing local tests establishes the checks listed in this repository. It does not establish cloud deployment, real-data quality, production security, or native BI rendering unless an explicit verification record says so.
